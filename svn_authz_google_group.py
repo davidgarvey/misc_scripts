@@ -1,17 +1,22 @@
 #!/usr/bin/python
 #Create svn authz from google groups
-#This is the authorization part. Authentication is seperate. 
-#Note: This script needs somework. No backup of existing authz conf file 
-#(I decided to use svn as a backup by committing changes on authz to a svn repo)
+#This is the authorization part. Authentication is seperate.
+#This script needs a working repo to commit authz changes.
+#Note: This script needs somework.
+
 import ConfigParser
-import os, datetime
+import os, datetime, time, shutil
 from string import Template
 from gdata.apps.groups.service import GroupsService
-
+#######################################
+# CHANGE THESE
 config_file='/path/to/pam_google.conf'
-authz_path = '/path/to/svn/conf/authz'
+authz_path = '/svn/repo/conf/authz'
+authz_repo = '/root/authz-repo/authz/repo/' #This is the working repo for this script
 groups = 'google-group'
-application_name = 'svn-google-auth for google-group'
+#######################################
+
+application_name = 'svn-google-auth for example.com'
 this_script = os.path.basename(__file__)
 
 now = datetime.datetime.now()
@@ -51,8 +56,19 @@ $footer
 '''
 
 authz_template = Template(poop_stuff)
-file = open(authz_path, 'w')
+authz_repo_path = "%sauthz" %authz_repo
+print authz_repo_path
+file = open(authz_repo_path, 'w')
 file.write(authz_template.substitute(locals()))
+file.flush()
+
+CD = "cd %s" %authz_repo
+SVN_COMMIT = 'svn commit -m "what"'
+SRC = '%sauthz' %authz_repo
+os.system(CD)
+os.system(SVN_COMMIT)
+shutil.copyfile(SRC, authz_path)
+
 
 
 
