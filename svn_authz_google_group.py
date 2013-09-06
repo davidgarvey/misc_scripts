@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #Create svn authz from google groups
 #This is the authorization part. Authentication is seperate. 
-#Note: This script needs somework. No backup of existing authz conf file
+#Note: This script needs somework. No backup of existing authz conf file 
+#(I decided to use svn as a backup by committing changes on authz to a svn repo)
 import ConfigParser
 import os, datetime
 from string import Template
