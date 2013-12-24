@@ -1,0 +1,55 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "ec2:CreateTags",
+        "ec2:DescribeTags"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": [
+          "arn:aws:ec2:<region>::image/ami-bf5021d6",
+          "arn:aws:ec2:<region>:<customer number>:instance/*",
+          "arn:aws:ec2:<region>:<customer number>:volume/*",
+          "arn:aws:ec2:<region>:<customer number>:key-pair/<user key name>",
+          "arn:aws:ec2:<region>:<customer number>:security-group/sg-<xxxxxxx>(user sg)"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:ReportInstanceStatus",
+        "ec2:RequestSpotInstances"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:StartInstances",
+        "ec2:StopInstances",
+        "ec2:TerminateInstances"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/<username tag>": "true"
+        }
+      },
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
