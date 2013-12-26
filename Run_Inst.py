@@ -11,6 +11,7 @@ SG = ['<sec group>'] # the security group for user
 dev_sda = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
 dev_sda.size = 100 # size in Gigabytes
 
+conn = boto.ec2.connect_to_region(Region) 
 
 #Setup block device size object (Note: for linux you need to resize disk once started resize2fs /dev/root-dev)
 bdm = boto.ec2.blockdevicemapping.BlockDeviceMapping()
@@ -19,7 +20,7 @@ bdm['/dev/sda'] = dev_sda
 
 
 
-conn = boto.ec2.connect_to_region(Region) 
+
 reservations = conn.get_all_instances()
 instances = [i for r in reservations for i in r.instances]
 for inst in instances:
