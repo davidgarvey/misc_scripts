@@ -2,6 +2,7 @@ import boto.ec2
 
 Region ='<region>' #something like 'us-west-1'
 User = '<user>' #user setup in aws
+SecGrp = 'user security group'
 
 conn = boto.ec2.connect_to_region(Region) 
 reservations = conn.get_all_instances()
@@ -11,5 +12,5 @@ for inst in instances:
         print "Name:%s ID_%s  IP:%s State:%s" %(inst.tags['Name'],inst,inst.public_dns_name,inst.state)
     else:
         for g in inst.groups: 
-            if g.id == name:
+            if g.id == SecGrp:
                 print "Name:NoName ID_%s  IP:%s State:%s" %(inst,inst.public_dns_name,inst.state)
