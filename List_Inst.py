@@ -8,8 +8,10 @@ conn = boto.ec2.connect_to_region(Region)
 reservations = conn.get_all_instances()
 instances = [i for r in reservations for i in r.instances]
 for inst in instances:
-    if User in inst.tags:
-        print "Name:%s ID_%s  IP:%s State:%s" %(inst.tags['Name'],inst,inst.public_dns_name,inst.state)
+    tag = inst.tags.get('Name', None)
+    if tag is not None:
+        if User in tag:
+            print "Name:%s ID_%s  IP:%s State:%s" %(inst.tags['Name'],inst,inst.public_dns_name,inst.state)
     else:
         for g in inst.groups: 
             if g.id == SecGrp:
