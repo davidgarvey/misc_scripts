@@ -1,0 +1,73 @@
+#!/bin/bash
+# logstash web daemon
+# chkconfig: 345 20 80
+# description: logstash web
+# processname: logstash-web
+
+
+NICE="19"
+MODE="web"
+NAME="logstash-$MODE"
+CONF="/etc/logstash/$MODE.conf"
+LOG="/var/log/logstash/$NAME.log"
+DAEMON="/bin/nice -n ${NICE} /usr/bin/java -jar /opt/logstash/bin/logstash.jar web"
+DAEMONOPTS="--log ${LOG}"
+
+DESC="Logstash Indexer"
+PIDFILE="/var/run/$NAME.pid"
+SCRIPTNAME=/etc/init.d/$NAME
+
+case "$1" in
+start)
+        if [ -f /var/run/$NAME.pid ]; then
+           echo "$NAME is already running or $PIDFILE needs to be removed"
+           ps -efww | grep `cat /var/run/logstash-indexer.pid`
+           exit 1
+        fi
+	printf "%-50s" "Starting $NAME..."
+	PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
+	#echo "Saving PID" $PID " to " $PIDFILE
+        if [ -z $PID ]; then
+            printf "%s\n" "Fail"
+        else
+            echo $PID > $PIDFILE
+            ps -o pid,pcpu,pmem,ni -p $PID
+            printf "%s\n" "Ok"
+        fi
+;;
+status)
+        printf "%-50s" "Checking $NAME..."
+        if [ -f $PIDFILE ]; then
+            PID=`cat $PIDFILE`
+            if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+                printf "%s\n" "Process dead but pidfile exists"
+            else
+                echo "Running"
+                 PID=`cat /var/run/logstash-indexer.pid`
+                 ps -o pid,pcpu,pmem,ni -p $PID
+            fi
+        else
+            printf "%s\n" "Service not running"
+        fi
+;;
+stop)
+        printf "%-50s" "Stopping $NAME"
+            PID=`cat $PIDFILE`
+        if [ -f $PIDFILE ]; then
+            kill $PID
+            printf "%s\n" "Ok"
+            rm -f $PIDFILE
+        else
+            printf "%s\n" "pidfile not found"
+        fi
+;;
+
+restart)
+  	$0 stop
+  	$0 start
+;;
+
+*)
+        echo "Usage: $0 {status|start|stop|restart}"
+        exit 1
+esac
