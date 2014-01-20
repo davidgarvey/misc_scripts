@@ -4,28 +4,23 @@
 # description: logstash web
 # processname: logstash-web
 
-
-NICE="19"
 MODE="web"
 NAME="logstash-$MODE"
-CONF="/etc/logstash/$MODE.conf"
-LOG="/var/log/logstash/$NAME.log"
-DAEMON="/bin/nice -n ${NICE} /usr/bin/java -jar /opt/logstash/bin/logstash.jar web"
-DAEMONOPTS="--log ${LOG}"
+DAEMON="/usr/bin/java -Xms256m -Xmx1g -Xss256k -Djava.awt.headless=true -jar /opt/logstash/bin/logstash.jar web"
 
-DESC="Logstash Indexer"
+DESC="Logstash ElasticSearch Web"
 PIDFILE="/var/run/$NAME.pid"
 SCRIPTNAME=/etc/init.d/$NAME
 
 case "$1" in
 start)
-        if [ -f /var/run/$NAME.pid ]; then
+        if [ -f $PIDFILE ]; then
            echo "$NAME is already running or $PIDFILE needs to be removed"
-           ps -efww | grep `cat /var/run/logstash-indexer.pid`
+           ps -efww | grep `cat ${PIDFILE}`
            exit 1
         fi
 	printf "%-50s" "Starting $NAME..."
-	PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
+	PID=`$DAEMON  > $LOG 2>&1 & echo $!`
 	#echo "Saving PID" $PID " to " $PIDFILE
         if [ -z $PID ]; then
             printf "%s\n" "Fail"
@@ -43,7 +38,6 @@ status)
                 printf "%s\n" "Process dead but pidfile exists"
             else
                 echo "Running"
-                 PID=`cat /var/run/logstash-indexer.pid`
                  ps -o pid,pcpu,pmem,ni -p $PID
             fi
         else
