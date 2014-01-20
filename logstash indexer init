@@ -21,7 +21,7 @@ case "$1" in
 start)
         if [ -f /var/run/$NAME.pid ]; then
            echo "$NAME is already running or $PIDFILE needs to be removed"
-           ps -efww | grep `cat /var/run/logstash-indexer.pid`
+           ps -efww | grep `cat $PIDFILE`
            exit 1
         fi
 	printf "%-50s" "Starting $NAME..."
@@ -43,7 +43,6 @@ status)
                 printf "%s\n" "Process dead but pidfile exists"
             else
                 echo "Running"
-                 PID=`cat /var/run/logstash-indexer.pid`
                  ps -o pid,pcpu,pmem,ni -p $PID
             fi
         else
