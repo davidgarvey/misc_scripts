@@ -6,3 +6,25 @@ echo "hello" | text2wave | play -t wav -
 
 
 Found here: http://dnscurve.org/espionage.html
+
+
+
+
+#!/bin/bash
+
+
+   lastwhen=0
+   tcpdump -l -n -e port 53 \
+   | awk -W interactive '{if ($14 == "A?") print $15}' \
+   | while read domain
+   do
+     when=`date +%s`
+     if [ `expr $when - $lastwhen` -gt 2 ]
+     then
+       tput bold; echo "address request for $domain (audio on)"; tput sgr0
+       echo " $domain" | sed 's/www\.//' | text2wave | play -t wav - >/dev/null 2>&1
+       lastwhen=`date +%s`
+     else
+       tput bold; echo "address request for $domain (audio paused temporarily)"; tput sgr0
+     fi
+   done
