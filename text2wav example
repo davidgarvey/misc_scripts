@@ -1,0 +1,4 @@
+apt-get install festival sox
+
+
+echo "hello" | text2wave | play -t wav -
