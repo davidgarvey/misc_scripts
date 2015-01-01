@@ -1,5 +1,6 @@
 #!/bin/bash
-# Auto reconnect ssh with keepalive
+# Auto reconnect ssh tunnel with keepalive
+# Create a tunnel to remote port 8888 that can be accessed via localhost port 8888
 
 while [ true ]; do
     echo Opening SSH session
