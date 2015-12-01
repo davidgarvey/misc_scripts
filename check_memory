@@ -1,0 +1,61 @@
+#!/usr/bin/python
+
+import os
+import re
+import sys
+from optparse import OptionParser
+
+# mem.used as mem.total - mem.free
+UNKNOWN = 3
+OK = 0
+WARNING = 1 #optional
+CRITICAL = 2
+
+
+PROC = '/proc/meminfo'
+
+
+def CalulateIT():
+    with open(PROC) as f:
+        for line in f.readlines():
+            MemTotal = re.search(r'^MemTotal:\s+(\d+)', line)
+            MemFree = re.search(r'^MemFree:\s+(\d+)', line)
+            if MemTotal:
+                mem_total_kB = int(MemTotal.groups()[0])
+            if MemFree:
+                mem_free_kB = int(MemFree.groups()[0])
+    mem_used_kB = mem_total_kB - mem_free_kB
+    return 100 * mem_used_kB/mem_total_kB
+
+def main():
+    parser = OptionParser()
+    parser.add_option('-c', '--critical', dest='critical', help='critical threshold in percent', type=int)
+    parser.add_option('-w', '--warning', dest='warning', help='warning threshold in percent', type=int)
+    (options, args) = parser.parse_args()
+    if not options.critical is None:
+        if not os.path.exists(PROC) and not os.access(PROC, os.R_OK):
+            print "This check can only be ran on linux"
+            sys.exit(UNKNOWN)
+        percent_used_kB = CalulateIT()
+        if percent_used_kB >= options.critical:
+             print "CRICICAL: Used Memory %s has reach critical threshold of %s" %(percent_used_kB,options.critical)
+             sys.exit(CRITICAL)
+        if not options.warning is None:
+            if percent_used_kB >= options.warning:
+                print "WARNING: Used Memory %s has reach warning threshold of %s" %(percent_used_kB,options.warning)
+                sys.exit(WARNING)
+        if percent_used_kB <= options.critical:
+             if options.warning:
+                 print "OK: Used Memory %s is below warning threshold %s" %(percent_used_kB,options.warning)
+             else:
+                 print "OK: Used Memory %s is below critical threshold %s" %(percent_used_kB,options.critical)
+
+             sys.exit(OK)
+    else:
+        print "Please add the percent threshold, example: -c 80"
+        print "The Warning (-w) is optional"
+        print "Ex: %s -w 80 -c 90" %os.path.basename(__file__)
+        sys.exit(UNKNOWN)
+
+if __name__ == '__main__':
+    main()
