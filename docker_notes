@@ -1,0 +1,6 @@
+docker network create --subnet=192.168.3.0/24 mydockernet
+docker run --net mydockernet --ip 192.168.3.6 -it ubuntu bash
+
+docker ps -a
+docker inspect <container id>
+
